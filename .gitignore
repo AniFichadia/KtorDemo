@@ -1,4 +1,10 @@
-build
+.gradle/
 
-.gradle/*
-.idea/*
+.idea/
+!.idea/codeStyles/*
+
+/out
+/build
+*.iml
+*.ipr
+*.iws
