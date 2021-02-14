@@ -18,20 +18,8 @@ import kotlin.test.assertTrue
 
 class ServerTest {
 
-    @Test
-    fun testRoot() {
-        withTestApplication({ module(testing = true) }) {
-            handleRequest(HttpMethod.Get, "/").apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("Hello world!", response.content)
-            }
+    val jsonSerializer = Json { prettyPrint = true }
 
-            handleRequest(HttpMethod.Get, "/?name=ani").apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("Hello ani!", response.content)
-            }
-        }
-    }
 
     @Test
     fun testRandom() {
@@ -40,8 +28,12 @@ class ServerTest {
                 assertEquals(HttpStatusCode.OK, response.status())
 
                 println(response.content)
-                val contentInt = response.content!!.toInt()
-                assertTrue { contentInt in 0..Int.MAX_VALUE }
+
+                val randomNumbers = jsonSerializer.decodeFromString<List<Int>>(response.content!!)
+                assertEquals(1, randomNumbers.size)
+                randomNumbers.forEach { randomNumber ->
+                    assertTrue { randomNumber in 0..Int.MAX_VALUE }
+                }
             }
 
 
@@ -49,11 +41,14 @@ class ServerTest {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
 
-            handleRequest(HttpMethod.Get, "/random?from=10&to=100").apply {
+            handleRequest(HttpMethod.Get, "/random?count=10&from=10&to=100").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
 
-                val contentInt = response.content!!.toInt()
-                assertTrue { contentInt in 10..100 }
+                val randomNumbers = jsonSerializer.decodeFromString<List<Int>>(response.content!!)
+                assertEquals(10, randomNumbers.size)
+                randomNumbers.forEach { randomNumber ->
+                    assertTrue { randomNumber in 10..100 }
+                }
             }
         }
     }
@@ -61,8 +56,6 @@ class ServerTest {
 
     @Test
     fun testHoursDiff() {
-        val jsonSerializer = Json { prettyPrint = true }
-
         withTestApplication({ module(testing = true) }) {
             val now = ZonedDateTime.now()
             val date = now.minus(5L, ChronoUnit.DAYS)
