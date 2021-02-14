@@ -42,7 +42,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import org.slf4j.event.Level
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -109,22 +108,11 @@ fun Application.module(testing: Boolean = false) {
             }
         }
     }
-    // TODO: install content negotiation and serialization
-    // TODO: Note new dependencies and plugin applied
     install(ContentNegotiation) {
-        // TODO: Configure JSON serialization
         json(
-            // TODO: configure Kotlinx Serialization
-            Json {
-                prettyPrint = true
-
-                serializersModule = SerializersModule {
-                    // TODO: if you need custom serialization, you can set it up here. Things like Polymorphic serialization can be ... "fun" ...
-                }
-            },
+            Json { prettyPrint = true },
             ContentType.Application.Json
         )
-        // TODO: you can register different serializers here
     }
 
     routing {
@@ -192,7 +180,6 @@ data class RandomLocation(val from: Int = 0, val to: Int = Int.MAX_VALUE)
 class HoursDiffLocation
 
 
-// TODO: setup Serializer
 @Serializer(forClass = ZonedDateTime::class)
 class ZonedDateTimeSerializer : KSerializer<ZonedDateTime> {
 
@@ -208,7 +195,6 @@ class ZonedDateTimeSerializer : KSerializer<ZonedDateTime> {
     }
 }
 
-// TODO: setup request class
 @Serializable
 data class HoursDiffRequest(
     @Serializable(with = ZonedDateTimeSerializer::class)
@@ -217,7 +203,6 @@ data class HoursDiffRequest(
     val to: ZonedDateTime,
 )
 
-// TODO: setup response class
 @Serializable
 data class HoursDiffResponse(
     @Serializable(with = ZonedDateTimeSerializer::class)
