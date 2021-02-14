@@ -6,6 +6,9 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,6 +51,20 @@ class ServerTest {
 
                 val contentInt = response.content!!.toInt()
                 assertTrue { contentInt in 10..100 }
+            }
+        }
+    }
+
+
+    @Test
+    fun testHoursDiff() {
+        withTestApplication({ module(testing = true) }) {
+            val date = ZonedDateTime.now().minus(5L, ChronoUnit.DAYS)
+
+            handleRequest(HttpMethod.Get, "/hoursDiff/${date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}").apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                assertEquals("120", response.content)
             }
         }
     }

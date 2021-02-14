@@ -7,6 +7,7 @@ import io.ktor.application.feature
 import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.features.CallLogging
+import io.ktor.features.DataConversion
 import io.ktor.features.DefaultHeaders
 import io.ktor.features.DoubleReceive
 import io.ktor.features.ParameterConversionException
@@ -30,6 +31,9 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.error
 import org.slf4j.event.Level
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -74,7 +78,24 @@ fun Application.module(testing: Boolean = false) {
     }
     install(Routing)
     install(Locations)
+    // TODO: Install data conversion feature. This is for query params only!
+    install(DataConversion) {
+        convert<ZonedDateTime> {
+            val format = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
+            decode { values, _ ->
+                values.singleOrNull()?.let { ZonedDateTime.parse(it, format) }
+            }
+
+            encode { value ->
+                when (value) {
+                    null -> listOf()
+                    is ZonedDateTime -> listOf(value.format(format))
+                    else -> throw Exception()
+                }
+            }
+        }
+    }
 
     routing {
         if (testing) {
@@ -100,6 +121,17 @@ fun Application.module(testing: Boolean = false) {
 
             call.respondText(randomValue.toString(), contentType = ContentType.Text.Plain)
         }
+
+
+        // TODO: new route now handles ZonedDateTime! Try commenting out the data conversion block
+        get<HoursDiffLocation> { request ->
+            val from = request.from
+            val now = ZonedDateTime.now()
+
+            val between = ChronoUnit.HOURS.between(from, now)
+
+            call.respondText(between.toString(), contentType = ContentType.Text.Plain)
+        }
     }
 
     if (testing) {
@@ -121,3 +153,6 @@ data class RootLocation(val name: String? = null)
 
 @Location("/random")
 data class RandomLocation(val from: Int = 0, val to: Int = Int.MAX_VALUE)
+
+@Location("/hoursDiff/{from}")
+data class HoursDiffLocation(val from: ZonedDateTime)
