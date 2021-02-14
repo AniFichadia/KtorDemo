@@ -44,15 +44,11 @@ object Server {
 }
 
 fun Application.module(testing: Boolean = false) {
-    // TODO: Install 'features'
     install(DefaultHeaders)
-    // TODO: can only receive the body once, unless this is enabled
     install(DoubleReceive)
-    // TODO: logback used for call logging
     install(CallLogging) {
         logger = log
         level = Level.DEBUG
-        // TODO: Look into call structure
         format { call: ApplicationCall ->
             val request: ApplicationRequest = call.request
             val uri = request.uri
@@ -75,7 +71,6 @@ fun Application.module(testing: Boolean = false) {
     install(Routing)
 
     routing {
-        // TODO: if you need to debug routing, enabling this logs the routing on every call
         if (testing) {
             trace { log.debug(it.buildText()) }
         }
@@ -83,7 +78,6 @@ fun Application.module(testing: Boolean = false) {
         route("/") {
             get {
                 val request: ApplicationRequest = call.request
-                // TODO: query param access
                 val name = request.queryParameters["name"]
 
                 val text = if (name != null) {
@@ -96,7 +90,6 @@ fun Application.module(testing: Boolean = false) {
             }
 
             post("/") {
-                // TODO: responding with error status codes
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
@@ -120,7 +113,6 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    // TODO: If you need to log all routes, you can use this
     if (testing) {
         val root = feature(Routing)
         val allRoutes = allRoutes(root)
