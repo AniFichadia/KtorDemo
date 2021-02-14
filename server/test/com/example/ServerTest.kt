@@ -24,10 +24,6 @@ class ServerTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("Hello ani!", response.content)
             }
-
-            handleRequest(HttpMethod.Post, "/").apply {
-                assertEquals(HttpStatusCode.InternalServerError, response.status())
-            }
         }
     }
 
