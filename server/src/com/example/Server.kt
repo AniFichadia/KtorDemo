@@ -67,14 +67,12 @@ fun Application.module(testing: Boolean = false) {
             log.error(cause)
 
             when (cause) {
-                // TODO: locations conversion failure throws this
                 is ParameterConversionException -> call.respond(HttpStatusCode.BadRequest)
                 else -> call.respond(HttpStatusCode.InternalServerError)
             }
         }
     }
     install(Routing)
-    // TODO: install locations feature, note new dependency in gradle file
     install(Locations)
 
 
@@ -83,9 +81,6 @@ fun Application.module(testing: Boolean = false) {
             trace { log.debug(it.buildText()) }
         }
 
-        // TODO: look at locations first below
-
-        // TODO: note new syntax and accessing query params
         get<RootLocation> { request ->
             val name = request.name
             val text = if (!name.isNullOrBlank()) {
@@ -121,20 +116,8 @@ fun allRoutes(root: Route): List<Route> {
     return listOf(root) + root.children.flatMap { allRoutes(it) }
 }
 
-
-// TODO: define location routes
-
-// TODO: optional query param
 @Location("")
 data class RootLocation(val name: String? = null)
 
-// TODO: query param default values
 @Location("/random")
 data class RandomLocation(val from: Int = 0, val to: Int = Int.MAX_VALUE)
-
-// TODO: path components. Note: optional with "?"
-@Location("/another/{pathComponent?}")
-class AnotherLocation(val pathComponent: String?) {
-    @Location("/sub")
-    class SubRoute(val parent: AnotherLocation)
-}
