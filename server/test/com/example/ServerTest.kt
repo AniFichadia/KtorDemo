@@ -5,9 +5,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.setBody
 import io.ktor.server.testing.withTestApplication
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,13 +61,25 @@ class ServerTest {
 
     @Test
     fun testHoursDiff() {
-        withTestApplication({ module(testing = true) }) {
-            val date = ZonedDateTime.now().minus(5L, ChronoUnit.DAYS)
+        val jsonSerializer = Json { prettyPrint = true }
 
-            handleRequest(HttpMethod.Get, "/hoursDiff/${date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}").apply {
+        withTestApplication({ module(testing = true) }) {
+            val now = ZonedDateTime.now()
+            val date = now.minus(5L, ChronoUnit.DAYS)
+            val request = HoursDiffRequest(
+                from = date,
+                to = now,
+            )
+
+            handleRequest (HttpMethod.Get, "/hoursDiff"){
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(jsonSerializer.encodeToString(request))
+            }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
 
-                assertEquals("120", response.content)
+                val response = jsonSerializer.decodeFromString<HoursDiffResponse>(response.content!!)
+
+                assertEquals(120, response.hoursBetween)
             }
         }
     }

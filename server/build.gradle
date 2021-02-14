@@ -10,6 +10,7 @@ buildscript {
 
 apply plugin: 'kotlin'
 apply plugin: 'application'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 
 group 'com.example'
 version '0.0.1'
@@ -36,6 +37,8 @@ dependencies {
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-locations:$ktor_version"
+    implementation "io.ktor:ktor-serialization:$ktor_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
 
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
