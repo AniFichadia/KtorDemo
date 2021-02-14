@@ -78,7 +78,6 @@ fun Application.module(testing: Boolean = false) {
     }
     install(Routing)
     install(Locations)
-    // TODO: Install data conversion feature. This is for query params only!
     install(DataConversion) {
         convert<ZonedDateTime> {
             val format = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -123,7 +122,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
 
-        // TODO: new route now handles ZonedDateTime! Try commenting out the data conversion block
         get<HoursDiffLocation> { request ->
             val from = request.from
             val now = ZonedDateTime.now()
